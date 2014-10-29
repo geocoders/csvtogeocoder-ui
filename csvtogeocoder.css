@@ -1,0 +1,136 @@
+@font-face {
+    font-family: 'fira_sansbold';
+    src: url('./fonts/FiraSans-Bold.eot');
+    src: url('./fonts/FiraSans-Bold.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/FiraSans-Bold.woff') format('woff'),
+         url('./fonts/FiraSans-Bold.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+@font-face {
+    font-family: 'fira_sansregular';
+    src: url('./fonts/FiraSans-Regular.eot');
+    src: url('./fonts/FiraSans-Regular.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/FiraSans-Regular.woff') format('woff'),
+         url('./fonts/FiraSans-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'fira_sanslight';
+    src: url('./fonts/FiraSans-Light.eot');
+    src: url('./fonts/FiraSans-Light.eot?#iefix') format('embedded-opentype'),
+         url('./fonts/FiraSans-Light.woff') format('woff'),
+         url('./fonts/FiraSans-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+.csvtogeocoder {
+    font-family: 'fira_sanslight', sans-serif;
+    padding: 20px;
+}
+.csvtogeocoder h1, .csvtogeocoder h2 {
+    font-family: 'fira_sansbold', sans-serif;
+    font-weight: normal;
+}
+.csvtogeocoder #holder,
+.csvtogeocoder #chosenColumns,
+.csvtogeocoder #availableColumns {
+    width: 90%;
+    margin: 20px auto;
+}
+.csvtogeocoder #holder {
+    border: 1px dashed #ccc;
+    height: 200px;
+    text-align: center;
+    line-height: 200px;
+}
+.csvtogeocoder #availableColumns {
+    padding: 0;
+}
+.csvtogeocoder #holder.hover { border: 1px dashed #333; }
+.csvtogeocoder #chosenColumns {
+    padding: 0;
+    height: 37px;
+    line-height: 37px;
+    border: 1px dashed #ccc;
+    color: #ccc;
+}
+.csvtogeocoder #chosenColumns:empty:before {
+    content: 'Drag columns here';
+    padding-left: 5px;
+}
+.csvtogeocoder #chosenColumns li,
+.csvtogeocoder #availableColumns li {
+    background-color: #eee;
+    border: 1px solid #aaa;
+    display: inline;
+    padding: 5px 5px 5px 0;;
+    cursor: grab;
+    color: #444;
+    margin-right: 2px;
+}
+.csvtogeocoder #chosenColumns li:before,
+.csvtogeocoder #availableColumns li:before {
+    background-color: #999;
+    color: #efefef;
+    content: "+";
+    display: inline-block;
+    font-family: fira_sansbold;
+    height: 35px;
+    line-height: 35px;
+    margin-right: 5px;
+    padding: 0 5px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.csvtogeocoder #chosenColumns li:before {
+    content: '-';
+}
+.csvtogeocoder #chosenColumns.hover { border: 1px dashed #333; }
+.csvtogeocoder #fileInput {display: none;}
+.csvtogeocoder input[type="button"] {
+    display: block;
+    min-width: 200px;
+    background-color: #2c3e50;
+    color: #fff;
+    border: none;
+    margin-bottom: 14px;
+    text-align: center;
+    min-height: 56px;
+    line-height: 56px;
+    border-radius: 2px;
+    font-weight: normal;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+}
+.csvtogeocoder input[type="button"]:hover {
+    background-color: #34495e;
+}
+.csvtogeocoder .progressBar {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    height: 10px;
+    width: 90%;
+    margin: 20px auto;
+    border: 1px solid #444;
+}
+.csvtogeocoder .progressBar hr {
+    background-color: #444;
+    border: medium none;
+    color: #444;
+    height: 8px;
+    line-height: 10px;
+    margin: 0;
+    text-align: left;
+    vertical-align: middle;
+    width: 0;
+    -webkit-transition: all 500ms ease-in;
+    transition: all 500ms ease-in;
+}
