@@ -1,5 +1,10 @@
 var CSVToGeocoder = function (options) {
     options = options || {};
+    options.i18n = options.i18n || {};
+
+    var _ = function (k) {
+        return options.i18n[k] || k;
+    }
 
     var createNode = function (what, attrs, parent, content) {
         var el = document.createElement(what);
@@ -21,17 +26,17 @@ var CSVToGeocoder = function (options) {
         container = document.body;
     }
     container.setAttribute('class', (container.getAttribute('class') ? container.getAttribute('class') + ' ' : '') + 'csvtogeocoder');
-    createNode('h2', {}, container, '1. Choose a file');
+    createNode('h2', {}, container, '1. ' + _('Choose a file'));
     var fileInput = createNode('input', {type: 'file', id: 'fileInput'}, container);
-    var holder = createNode('div', {id: 'holder'}, container, 'Drag your file here, or <a id="browseLink" href="#">browse</a>');
-    createNode('h2', {}, container, '2. Choose the columns to consider');
+    var holder = createNode('div', {id: 'holder'}, container, _('Drag your file here') + ', ' + _('or') + ' <a id="browseLink" href="#">' + _('browse') + '</a>');
+    createNode('h2', {}, container, '2. ' + _('Choose the columns to consider'));
     var availableColumns = createNode('ul', {id: 'availableColumns'}, container);
     var chosenColumns = createNode('ul', {id: 'chosenColumns'}, container);
-    createNode('h2', {}, container, '3. Run the process');
+    createNode('h2', {}, container, '3. ' + _('Run the process'));
     var optionsContainer = createNode('div', {id: 'options'}, container),
-        matchAllContainer = createNode('label', {'for': 'matchAll'}, optionsContainer, 'Strict (all words must be found)'),
+        matchAllContainer = createNode('label', {'for': 'matchAll'}, optionsContainer, _('Strict') + ' (' + _('all words must be found') + ')'),
         matchAll = createNode('input', {type: 'checkbox', id: 'matchAll'}, matchAllContainer);
-    var submitButton = createNode('input', {type: 'button', value: 'Geocode', disabled: 'disabled'}, container);
+    var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, container);
 
     var error = function (message) {
         console.error(message);
@@ -58,7 +63,7 @@ var CSVToGeocoder = function (options) {
                     var blob = new Blob([xhr.responseText], {type: 'text/csv'});
                     window.open(window.URL.createObjectURL(blob));
                 } else {
-                    error('Sorry, something went wrong…')
+                    error(_('Sorry, something went wrong…'));
                 }
             }
         };
@@ -77,7 +82,7 @@ var CSVToGeocoder = function (options) {
     var processFile = function (f) {
         file = f;
         reader.readAsText(file);
-        holder.innerHTML = '<strong>' + file.name + '</strong> (or drag another file here, or <a id="browseLink" href="#">browse</a>)';
+        holder.innerHTML = '<strong>' + file.name + '</strong> (' + _('or drag another file here') + ', ' + _('or') + ' <a id="browseLink" href="#">' + _('browse') + '</a>)';
         listenBrowseLink();
     };
     var onFileDrop = function (e) {
