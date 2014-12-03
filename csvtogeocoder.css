@@ -1,41 +1,5 @@
-@font-face {
-    font-family: 'fira_sansbold';
-    src: url('./fonts/FiraSans-Bold.eot');
-    src: url('./fonts/FiraSans-Bold.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/FiraSans-Bold.woff') format('woff'),
-         url('./fonts/FiraSans-Bold.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-
-}
-
-
-@font-face {
-    font-family: 'fira_sansregular';
-    src: url('./fonts/FiraSans-Regular.eot');
-    src: url('./fonts/FiraSans-Regular.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/FiraSans-Regular.woff') format('woff'),
-         url('./fonts/FiraSans-Regular.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
-
-@font-face {
-    font-family: 'fira_sanslight';
-    src: url('./fonts/FiraSans-Light.eot');
-    src: url('./fonts/FiraSans-Light.eot?#iefix') format('embedded-opentype'),
-         url('./fonts/FiraSans-Light.woff') format('woff'),
-         url('./fonts/FiraSans-Light.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-}
 .csvtogeocoder {
-    font-family: 'fira_sanslight', sans-serif;
     padding: 20px;
-}
-.csvtogeocoder h1, .csvtogeocoder h2 {
-    font-family: 'fira_sansbold', sans-serif;
-    font-weight: normal;
 }
 .csvtogeocoder #holder,
 .csvtogeocoder #chosenColumns,
@@ -67,7 +31,7 @@
 .csvtogeocoder #chosenColumns li,
 .csvtogeocoder #availableColumns li {
     background-color: #eee;
-    border: 1px solid #aaa;
+    border: 1px solid #ccc;
     display: inline;
     padding: 5px 5px 5px 0;;
     cursor: grab;
@@ -76,11 +40,10 @@
 }
 .csvtogeocoder #chosenColumns li:before,
 .csvtogeocoder #availableColumns li:before {
-    background-color: #999;
-    color: #efefef;
+    background-color: #ccc;
+    color: #fff;
     content: "+";
     display: inline-block;
-    font-family: fira_sansbold;
     height: 35px;
     line-height: 35px;
     margin-right: 5px;
