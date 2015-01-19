@@ -32,10 +32,6 @@ var CSVToGeocoder = function (options) {
     createNode('h2', {}, container, '2. ' + _('Choose the columns to consider'));
     var availableColumns = createNode('ul', {id: 'availableColumns'}, container);
     var chosenColumns = createNode('ul', {id: 'chosenColumns'}, container);
-    createNode('h2', {}, container, '3. ' + _('Run the process'));
-    var optionsContainer = createNode('div', {id: 'options'}, container),
-        matchAllContainer = createNode('label', {'for': 'matchAll'}, optionsContainer, _('Strict') + ' (' + _('all words must be found') + ')'),
-        matchAll = createNode('input', {type: 'checkbox', id: 'matchAll'}, matchAllContainer);
     var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, container);
 
     var error = function (message) {
@@ -55,7 +51,6 @@ var CSVToGeocoder = function (options) {
         for (var i = 0; i < columns.length; i++) {
             formData.append('columns', columns[i].id);
         }
-        formData.append('match_all', !!matchAll.checked);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
