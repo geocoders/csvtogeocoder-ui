@@ -57,7 +57,7 @@ var CSVToGeocoder = function (options) {
                 if (xhr.status === 200) {
                     window.URL = window.URL || window.webkitURL;
                     var blob = new Blob([xhr.responseText], {type: 'text/csv'});
-                    window.open(window.URL.createObjectURL(blob));
+                    window.location = window.URL.createObjectURL(blob);
                 } else {
                     error(_('Sorry, something went wrong…'));
                 }
