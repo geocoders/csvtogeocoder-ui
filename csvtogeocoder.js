@@ -4,7 +4,7 @@ var CSVToGeocoder = function (options) {
 
     var _ = function (k) {
         return options.i18n[k] || k;
-    }
+    };
 
     var createNode = function (what, attrs, parent, content) {
         var el = document.createElement(what);
@@ -20,7 +20,7 @@ var CSVToGeocoder = function (options) {
     var reader = new FileReader(), file,
         formData, container;
     if (options.container) {
-        if (typeof options.container === "string") container = document.querySelector(options.container);
+        if (typeof options.container === 'string') container = document.querySelector(options.container);
         else container = options.container;
     } else {
         container = document.body;
@@ -42,8 +42,8 @@ var CSVToGeocoder = function (options) {
         e.preventDefault();
     };
     var submit = function () {
-        var progressBarContainer = createNode('div', {className: 'progressBar'}, container),
-            progressBar = createNode('hr', {}, progressBarContainer);
+        var progressBar = createNode('progress', {}, container);
+        progressBar.max = 100;
         var xhr = new XMLHttpRequest();
         xhr.open('POST', options.postURL || '.');
         xhr.overrideMimeType('text/csv; charset=utf-8');
@@ -53,6 +53,7 @@ var CSVToGeocoder = function (options) {
         }
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
+                progressBar.parentNode.removeChild(progressBar);
                 if (xhr.status === 200) {
                     window.URL = window.URL || window.webkitURL;
                     var blob = new Blob([xhr.responseText], {type: 'text/csv'});
@@ -62,14 +63,14 @@ var CSVToGeocoder = function (options) {
                 }
             }
         };
-        xhr.upload.addEventListener("progress", function (e) {
+        xhr.upload.addEventListener('progress', function (e) {
             if (e.lengthComputable) {
                 var percentage = Math.round((e.loaded * 100) / e.total);
-                progressBar.style.width = percentage + '%';
+                progressBar.value = percentage;
             }
         }, false);
-        xhr.upload.addEventListener("load", function(e){
-            progressBarContainer.parentNode.removeChild(progressBarContainer);
+        xhr.upload.addEventListener('load', function (){
+                progressBar.removeAttribute('value');  // Switch to undeterminate state.
         }, false);
         xhr.send(formData);
         return false;
