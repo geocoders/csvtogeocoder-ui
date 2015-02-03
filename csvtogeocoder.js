@@ -57,8 +57,7 @@ var CSVToGeocoder = function (options) {
                 progressBar.parentNode.removeChild(progressBar);
                 if (xhr.status === 200) {
                     window.URL = window.URL || window.webkitURL;
-                    var blob = new Blob([xhr.responseText], {type: 'text/csv'});
-                    window.location = window.URL.createObjectURL(blob);
+                    window.location = window.URL.createObjectURL(new Blob([xhr.responseText], {type: 'text/csv'}));
                 } else {
                     error(_('Sorry, something went wrong…'));
                 }
