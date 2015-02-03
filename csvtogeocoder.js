@@ -17,8 +17,7 @@ var CSVToGeocoder = function (options) {
         return el;
     };
 
-    var reader = new FileReader(), file,
-        formData, container;
+    var reader = new FileReader(), file, container, blob;
     if (options.container) {
         if (typeof options.container === 'string') container = document.querySelector(options.container);
         else container = options.container;
@@ -48,9 +47,11 @@ var CSVToGeocoder = function (options) {
         xhr.open('POST', options.postURL || '.');
         xhr.overrideMimeType('text/csv; charset=utf-8');
         var columns = document.querySelectorAll('#chosenColumns li');
+        var formData = new FormData();
         for (var i = 0; i < columns.length; i++) {
             formData.append('columns', columns[i].id);
         }
+        formData.append('data', blob);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 progressBar.parentNode.removeChild(progressBar);
@@ -124,9 +125,7 @@ var CSVToGeocoder = function (options) {
             availableColumns.appendChild(column);
         }
         submitButton.disabled = false;
-        var blob = new Blob([reader.result], {type: 'text/csv'});
-        formData = new FormData();
-        formData.append('data', blob);
+        blob = new Blob([reader.result], {type: 'text/csv'});
     };
     var onSubmit = function (e) {
         stop(e);
