@@ -106,7 +106,7 @@ var CSVToGeocoder = function (options) {
     };
     var onFileLoad = function () {
         var rawHeaders = reader.result.slice(0, reader.result.indexOf('\n')),
-            separators = [',', ';', '|', ':'], currentCount = 0, separator, count;
+            separators = [',', ';', '|', ':', '\t'], currentCount = 0, separator, count;
         for (var i = 0; i < separators.length; i++) {
           count = (rawHeaders.match(new RegExp('\\' + separators[i],'g')) || []).length;
           if (count > currentCount) {
