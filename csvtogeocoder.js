@@ -24,6 +24,9 @@ var CSVToGeocoder = function (options) {
     } else {
         container = document.body;
     }
+    var download = document.createElement('a');
+    container.appendChild(download);
+    download.style.display = 'none';
     container.setAttribute('class', (container.getAttribute('class') ? container.getAttribute('class') + ' ' : '') + 'csvtogeocoder');
     createNode('h2', {}, container, '1. ' + _('Choose a file'));
     var fileInput = createNode('input', {type: 'file', id: 'fileInput'}, container);
@@ -51,13 +54,16 @@ var CSVToGeocoder = function (options) {
         for (var i = 0; i < columns.length; i++) {
             formData.append('columns', columns[i].id);
         }
-        formData.append('data', blob);
+        formData.append('data', blob, file.name);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 progressBar.parentNode.removeChild(progressBar);
                 if (xhr.status === 200) {
                     window.URL = window.URL || window.webkitURL;
-                    window.location = window.URL.createObjectURL(new Blob([xhr.responseText], {type: 'text/csv'}));
+                    var url = window.URL.createObjectURL(new Blob([xhr.responseText], {type: 'text/csv'}));
+                    download.href = url;
+                    download.download = downloadFileName();
+                    download.click();
                 } else {
                     error(_('Sorry, something went wrong…'));
                 }
@@ -187,6 +193,13 @@ var CSVToGeocoder = function (options) {
             fileInput.click();
         };
         browseLink.addEventListener('click', onBrowseLinkClick, false);
+    };
+    var downloadFileName = function () {
+        // As we are in CORS ajax, we can't access the Content-Disposition header,
+        // so built the file name from here.
+        var name = file.name || 'file';
+        if (name.indexOf('.csv', name.length - 4) !== -1) name = name.slice(0, name.length - 4);
+        return name + '.geocoded.csv';
     };
     listenBrowseLink();
     reader.addEventListener('load', onFileLoad, false);
