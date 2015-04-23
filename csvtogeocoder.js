@@ -18,6 +18,7 @@ var CSVToGeocoder = function (options) {
     };
 
     var reader = new FileReader(), file, container, blob;
+    READER = reader;
     if (options.container) {
         if (typeof options.container === 'string') container = document.querySelector(options.container);
         else container = options.container;
@@ -105,7 +106,7 @@ var CSVToGeocoder = function (options) {
         stop(e);
     };
     var onFileLoad = function () {
-        var rawHeaders = reader.result.slice(0, reader.result.indexOf('\n')),
+        var rawHeaders = reader.result.slice(0, reader.result.indexOf('\r\n') !== -1 ? reader.result.indexOf('\r\n') : reader.result.indexOf('\n')),
             separators = [',', ';', '|', ':', '\t'], currentCount = 0, separator, count;
         for (var i = 0; i < separators.length; i++) {
           count = (rawHeaders.match(new RegExp('\\' + separators[i],'g')) || []).length;
