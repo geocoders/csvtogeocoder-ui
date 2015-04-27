@@ -16,8 +16,15 @@ var CSVToGeocoder = function (options) {
         }
         return el;
     };
+    var hasClass = function (el, name) {
+        return el.className.length && new RegExp('(^|\\s)' + name + '(\\s|$)').test(el.className);
+    };
 
-    var reader = new FileReader(), file, container, blob;
+    var addClass = function (el, name) {
+        el.className = (el.className ? el.className + ' ' : '') + name;
+    };
+
+    var reader = new FileReader(), file, container, blob, parsed;
     READER = reader;
     if (options.container) {
         if (typeof options.container === 'string') container = document.querySelector(options.container);
@@ -32,10 +39,20 @@ var CSVToGeocoder = function (options) {
     createNode('h2', {}, container, '1. ' + _('Choose a file'));
     var fileInput = createNode('input', {type: 'file', id: 'fileInput'}, container);
     var holder = createNode('div', {id: 'holder'}, container, _('Drag your file here') + ', ' + _('or') + ' <a id="browseLink" href="#">' + _('browse') + '</a>');
-    createNode('h2', {}, container, '2. ' + _('Choose the columns to consider'));
-    var availableColumns = createNode('ul', {id: 'availableColumns'}, container);
-    var chosenColumns = createNode('ul', {id: 'chosenColumns'}, container);
-    var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, container);
+    createNode('h2', {className: 'step', id: 'next'}, container, '2. ' + _('Preview the file and check encoding'));
+    var step2 = createNode('div', {className: 'step2'}, container);
+    var previewContainer = createNode('table', {className: 'preview'}, step2);
+    var helpEncoding = createNode('p', {id: 'helpEncoding'}, step2, _('If you see weird characters in the preview, you can try with another encoding: '));
+    var selectEncoding = createNode('select', {}, helpEncoding);
+    for (var i = 0; i < options.encodings.length; i++) {
+        createNode('option', {value: options.encodings[i]}, selectEncoding, options.encodings[i]);
+    }
+    createNode('h2', {className: 'step'}, container, '3. ' + _('Choose the columns you want to use to compute the addresses'));
+    var step3 = createNode('div', {className: 'step3'}, container);
+    var helpColumns = createNode('p', {id: 'helpColumns'}, step3, _('Drag or click on a column to select it. You can then drag the selected columns to reorder them.'));
+    var availableColumns = createNode('ul', {id: 'availableColumns'}, step3);
+    var chosenColumns = createNode('ul', {id: 'chosenColumns'}, step3);
+    var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, step3);
 
     var error = function (message) {
         console.error(message);
@@ -49,13 +66,14 @@ var CSVToGeocoder = function (options) {
         progressBar.max = 100;
         var xhr = new XMLHttpRequest();
         xhr.open('POST', options.postURL || '.');
-        xhr.overrideMimeType('text/csv; charset=utf-8');
+        xhr.overrideMimeType('text/csv; charset=' + getEncoding());
         var columns = document.querySelectorAll('#chosenColumns li');
         var formData = new FormData();
         for (var i = 0; i < columns.length; i++) {
             formData.append('columns', columns[i].id);
         }
         formData.append('data', blob, file.name);
+        formData.append('encoding', getEncoding());
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 progressBar.parentNode.removeChild(progressBar);
@@ -82,16 +100,19 @@ var CSVToGeocoder = function (options) {
         xhr.send(formData);
         return false;
     };
-    var processFile = function (f) {
-        file = f;
-        reader.readAsText(file);
+    var getEncoding = function () {
+        return selectEncoding.options[selectEncoding.selectedIndex].value;
+    };
+    var processFile = function () {
+        reader.readAsText(file, getEncoding());
         holder.innerHTML = '<strong>' + file.name + '</strong> (' + _('or drag another file here') + ', ' + _('or') + ' <a id="browseLink" href="#">' + _('browse') + '</a>)';
         listenBrowseLink();
     };
     var onFileDrop = function (e) {
         this.className = '';
         stop(e);
-        processFile(e.dataTransfer.files[0]);
+        file = e.dataTransfer.files[0];
+        processFile();
     };
     var onDragOver = function (e) {
         stop(e);
@@ -106,19 +127,13 @@ var CSVToGeocoder = function (options) {
         stop(e);
     };
     var onFileLoad = function () {
-        var rawHeaders = reader.result.slice(0, reader.result.indexOf('\r\n') !== -1 ? reader.result.indexOf('\r\n') : reader.result.indexOf('\n')),
-            separators = [',', ';', '|', ':', '\t'], currentCount = 0, separator, count;
-        for (var i = 0; i < separators.length; i++) {
-          count = (rawHeaders.match(new RegExp('\\' + separators[i],'g')) || []).length;
-          if (count > currentCount) {
-              currentCount = count;
-              separator = separators[i];
-          }
-        }
-        if (typeof separator === 'undefined') return;
-        var headers = rawHeaders.split(separator), column;
+        parsed = Papa.parse(reader.result, {header: true});
+        PAPA = parsed;
+        if (!parsed.data.length) return;
+        var headers = parsed.meta.fields, column;
         availableColumns.innerHTML = '';
         chosenColumns.innerHTML = '';
+        populatePreview();
         for (var j = 0; j < headers.length; j++) {
             column = document.createElement('li');
             column.setAttribute('draggable', 'true');
@@ -132,20 +147,37 @@ var CSVToGeocoder = function (options) {
         }
         submitButton.disabled = false;
         blob = new Blob([reader.result], {type: 'text/csv'});
+        if (!hasClass(container, 'active')) addClass(container, 'active');
+        window.location.hash = '#next';
     };
+    var populatePreview = function () {
+        previewContainer.innerHTML = '';
+        var row = createNode('tr', {}, previewContainer);
+        for (var i = 0; i < parsed.meta.fields.length; i++) {
+            createNode('th', {}, row, parsed.meta.fields[i]);
+        }
+        for (i = 0; i < Math.min(parsed.data.length, 4); i++) {
+            row = createNode('tr', {}, previewContainer);
+            for (var j = 0; j < parsed.meta.fields.length; j++) {
+                createNode('td', {}, row, parsed.data[i][parsed.meta.fields[j]]);
+            }
+        }
+        helpEncoding.style.display = 'block';
+    };
+
     var onSubmit = function (e) {
         stop(e);
         submit(file);
         return false;
     };
     var onColumnDragStart = function (e) {
-        e.dataTransfer.effectAllowed = 'copyMove';
+        e.dataTransfer.effectAllowed = 'copy';
         e.dataTransfer.setData('text/plain', this.id);
     };
     var onColumnDropboxDragover = function (e) {
         stop(e);
         this.className = 'hover';
-        e.dataTransfer.dropEffect = 'copyMove';
+        e.dataTransfer.dropEffect = 'copy';
     };
     var onColumnDropboxDragleave = function (e) {
         stop(e);
@@ -155,7 +187,6 @@ var CSVToGeocoder = function (options) {
         this.className = '';
         stop(e);
         var el = document.getElementById(e.dataTransfer.getData('text/plain'));
-        el.parentNode.removeChild(el);
         chosenColumns.appendChild(el);
         return false;
     };
@@ -185,7 +216,11 @@ var CSVToGeocoder = function (options) {
     };
     var onFileInputChange = function (e) {
         stop(e);
-        processFile(this.files[0]);
+        file = this.files[0];
+        processFile();
+    };
+    var onSelectEncodingChange = function (e) {
+        processFile();
     };
     var listenBrowseLink = function () {
         var browseLink = document.querySelector('#browseLink');
@@ -213,5 +248,6 @@ var CSVToGeocoder = function (options) {
     chosenColumns.addEventListener('dragleave', onColumnDropboxDragleave, false);
     chosenColumns.addEventListener('drop', onColumnDropboxDrop, false);
     fileInput.addEventListener('change', onFileInputChange, false);
+    selectEncoding.addEventListener('change', onSelectEncodingChange, false);
 
 };
