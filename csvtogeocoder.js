@@ -25,7 +25,6 @@ var CSVToGeocoder = function (options) {
     };
 
     var reader = new FileReader(), file, container, blob, parsed;
-    READER = reader;
     if (options.container) {
         if (typeof options.container === 'string') container = document.querySelector(options.container);
         else container = options.container;
@@ -42,7 +41,7 @@ var CSVToGeocoder = function (options) {
     createNode('h2', {className: 'step', id: 'next'}, container, '2. ' + _('Preview the file and check encoding'));
     var step2 = createNode('div', {className: 'step2'}, container);
     var previewContainer = createNode('table', {className: 'preview'}, step2);
-    var helpEncoding = createNode('p', {id: 'helpEncoding'}, step2, _('If you see weird characters in the preview, you can try with another encoding: '));
+    var helpEncoding = createNode('p', {id: 'helpEncoding'}, step2, _('If you see weird characters in the preview, you can try with another encoding') + ': ');
     var selectEncoding = createNode('select', {}, helpEncoding);
     for (var i = 0; i < options.encodings.length; i++) {
         createNode('option', {value: options.encodings[i]}, selectEncoding, options.encodings[i]);
@@ -66,7 +65,7 @@ var CSVToGeocoder = function (options) {
         progressBar.max = 100;
         var xhr = new XMLHttpRequest();
         xhr.open('POST', options.postURL || '.');
-        xhr.overrideMimeType('text/csv; charset=' + getEncoding());
+        xhr.overrideMimeType('text/csv');
         var columns = document.querySelectorAll('#chosenColumns li');
         var formData = new FormData();
         for (var i = 0; i < columns.length; i++) {
@@ -79,7 +78,7 @@ var CSVToGeocoder = function (options) {
                 progressBar.parentNode.removeChild(progressBar);
                 if (xhr.status === 200) {
                     window.URL = window.URL || window.webkitURL;
-                    var url = window.URL.createObjectURL(new Blob([xhr.responseText], {type: 'text/csv'}));
+                    var url = window.URL.createObjectURL(new Blob([xhr.responseText], {type: 'text/csv; charset=utf-8'}));
                     download.href = url;
                     download.download = downloadFileName();
                     download.click();
@@ -146,7 +145,7 @@ var CSVToGeocoder = function (options) {
             availableColumns.appendChild(column);
         }
         submitButton.disabled = false;
-        blob = new Blob([reader.result], {type: 'text/csv'});
+        blob = new Blob([reader.result], {type: 'text/csv; charset=' + getEncoding()});
         if (!hasClass(container, 'active')) addClass(container, 'active');
         window.location.hash = '#next';
     };
