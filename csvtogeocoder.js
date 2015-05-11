@@ -73,6 +73,7 @@ var CSVToGeocoder = function (options) {
         }
         formData.append('data', blob, file.name);
         formData.append('encoding', getEncoding());
+        formData.append('delimiter', parsed.meta.delimiter);
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 progressBar.parentNode.removeChild(progressBar);
@@ -127,7 +128,6 @@ var CSVToGeocoder = function (options) {
     };
     var onFileLoad = function () {
         parsed = Papa.parse(reader.result, {header: true});
-        PAPA = parsed;
         if (!parsed.data.length) return;
         var headers = parsed.meta.fields, column;
         availableColumns.innerHTML = '';
