@@ -24,6 +24,10 @@ var CSVToGeocoder = function (options) {
         el.className = (el.className ? el.className + ' ' : '') + name;
     };
 
+    var removeClass = function (el, name) {
+        el.className = ((' ' + el.className + ' ').replace(' ' + name + ' ', ' ')).trim();
+    };
+
     var reader = new FileReader(), file, container, blob, parsed;
     if (options.container) {
         if (typeof options.container === 'string') container = document.querySelector(options.container);
@@ -51,16 +55,23 @@ var CSVToGeocoder = function (options) {
     var helpColumns = createNode('p', {id: 'helpColumns'}, step3, _('Drag or click on a column to select it. You can then drag the selected columns to reorder them.'));
     var availableColumns = createNode('ul', {id: 'availableColumns'}, step3);
     var chosenColumns = createNode('ul', {id: 'chosenColumns'}, step3);
+    var errorContainer = createNode('div', {className: 'error'}, container);
     var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, step3);
 
     var error = function (message) {
-        console.error(message);
+        if (options.onError) {
+            options.onError(message);
+        } else {
+            errorContainer.innerHTML = message;
+            if (!hasClass(container, 'error')) addClass(container, 'error');
+        }
     };
     var stop = function (e) {
         e.stopPropagation();
         e.preventDefault();
     };
     var submit = function () {
+        removeClass(container, 'error');
         var progressBar = createNode('progress', {}, container);
         progressBar.max = 100;
         var xhr = new XMLHttpRequest();

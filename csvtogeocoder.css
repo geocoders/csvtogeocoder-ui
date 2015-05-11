@@ -112,3 +112,12 @@ progress {
 .csvtogeocoder.active .step4 {
     display: block;
 }
+.csvtogeocoder .error {
+    background-color: #F64747;
+    padding: 20px;
+    text-align: center;
+    display: none;
+}
+.csvtogeocoder.error .error {
+    display: block;
+}
