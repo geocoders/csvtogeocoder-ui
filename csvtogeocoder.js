@@ -1,14 +1,16 @@
+/*globals CSVToGeocoder Papa*/
+'use strict';
 var CSVToGeocoder = function (options) {
     options = options || {};
     options.i18n = options.i18n || {};
 
     var _ = function (k) {
-        return options.i18n[k] || k;
+        return options.i18n[k] || k;
     };
 
     var createNode = function (what, attrs, parent, content) {
         var el = document.createElement(what);
-        for (var attr in attrs || {}) el[attr] = attrs[attr];
+        for (var attr in attrs || {}) el[attr] = attrs[attr];
         if (typeof parent !== 'undefined') parent.appendChild(el);
         if (content) {
             if (content.nodeType && content.nodeType === 1) el.appendChild(content);
@@ -16,6 +18,8 @@ var CSVToGeocoder = function (options) {
         }
         return el;
     };
+    CSVToGeocoder.createNode = createNode;
+
     var hasClass = function (el, name) {
         return el.className.length && new RegExp('(^|\\s)' + name + '(\\s|$)').test(el.className);
     };
@@ -42,21 +46,22 @@ var CSVToGeocoder = function (options) {
     createNode('h2', {}, container, '1. ' + _('Choose a file'));
     var fileInput = createNode('input', {type: 'file', id: 'fileInput'}, container);
     var holder = createNode('div', {id: 'holder'}, container, _('Drag your file here') + ', ' + _('or') + ' <a id="browseLink" href="#">' + _('browse') + '</a>');
-    createNode('h2', {className: 'step', id: 'next'}, container, '2. ' + _('Preview the file and check encoding'));
-    var step2 = createNode('div', {className: 'step2'}, container);
+    createNode('h2', {className: 'step-title', id: 'next'}, container, '2. ' + _('Preview the file and check encoding'));
+    var step2 = createNode('div', {className: 'step'}, container);
     var previewContainer = createNode('table', {className: 'preview'}, step2);
     var helpEncoding = createNode('p', {id: 'helpEncoding'}, step2, _('If you see weird characters in the preview, you can try with another encoding') + ': ');
     var selectEncoding = createNode('select', {}, helpEncoding);
     for (var i = 0; i < options.encodings.length; i++) {
         createNode('option', {value: options.encodings[i]}, selectEncoding, options.encodings[i]);
     }
-    createNode('h2', {className: 'step'}, container, '3. ' + _('Choose the columns you want to use to compute the addresses'));
-    var step3 = createNode('div', {className: 'step3'}, container);
-    var helpColumns = createNode('p', {id: 'helpColumns'}, step3, _('Drag or click on a column to select it. You can then drag the selected columns to reorder them.'));
+    createNode('h2', {className: 'step-title'}, container, '3. ' + _('Choose the columns you want to use to compute the addresses'));
+    var step3 = createNode('div', {className: 'step'}, container);
     var availableColumns = createNode('ul', {id: 'availableColumns'}, step3);
     var chosenColumns = createNode('ul', {id: 'chosenColumns'}, step3);
-    var errorContainer = createNode('div', {className: 'error'}, container);
-    var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, step3);
+    if (options.onBuild) options.onBuild({container: container});
+    var lastStep = createNode('div', {className: 'step'}, container);
+    var submitButton = createNode('input', {type: 'button', value: _('Geocode'), disabled: 'disabled'}, lastStep);
+    var errorContainer = createNode('div', {className: 'error'}, lastStep);
 
     var error = function (message) {
         if (options.onError) {
@@ -75,7 +80,7 @@ var CSVToGeocoder = function (options) {
         var progressBar = createNode('progress', {}, container);
         progressBar.max = 100;
         var xhr = new XMLHttpRequest();
-        xhr.open('POST', options.postURL || '.');
+        xhr.open('POST', options.postURL || '.');
         xhr.overrideMimeType('text/csv');
         var columns = document.querySelectorAll('#chosenColumns li');
         var formData = new FormData();
@@ -85,6 +90,7 @@ var CSVToGeocoder = function (options) {
         formData.append('data', blob, file.name);
         formData.append('encoding', getEncoding());
         formData.append('delimiter', parsed.meta.delimiter);
+        if (options.onSubmit) options.onSubmit({form: formData});
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
                 progressBar.parentNode.removeChild(progressBar);
@@ -106,7 +112,7 @@ var CSVToGeocoder = function (options) {
             }
         }, false);
         xhr.upload.addEventListener('load', function (){
-                progressBar.removeAttribute('value');  // Switch to undeterminate state.
+            progressBar.removeAttribute('value');  // Switch to undeterminate state.
         }, false);
         xhr.send(formData);
         return false;
@@ -159,6 +165,7 @@ var CSVToGeocoder = function (options) {
         blob = new Blob([reader.result], {type: 'text/csv; charset=' + getEncoding()});
         if (!hasClass(container, 'active')) addClass(container, 'active');
         window.location.hash = '#next';
+        if (options.onFileLoad) options.onFileLoad({file: blob, headers: headers});
     };
     var populatePreview = function () {
         previewContainer.innerHTML = '';
@@ -205,7 +212,7 @@ var CSVToGeocoder = function (options) {
         var el = document.getElementById(e.dataTransfer.getData('text/plain'));
         this.parentNode.insertBefore(el, this);
     };
-    var onColumnClick = function (e) {
+    var onColumnClick = function () {
         this.className = '';
         var from, to;
         if (this.parentNode === chosenColumns) {
@@ -218,10 +225,10 @@ var CSVToGeocoder = function (options) {
         from.removeChild(this);
         to.appendChild(this);
     };
-    var onColumnDragOver = function (e) {
+    var onColumnDragOver = function () {
         this.className = 'hover';
     };
-    var onColumnDragLeave = function (e) {
+    var onColumnDragLeave = function () {
         this.className = '';
     };
     var onFileInputChange = function (e) {
@@ -229,7 +236,7 @@ var CSVToGeocoder = function (options) {
         file = this.files[0];
         processFile();
     };
-    var onSelectEncodingChange = function (e) {
+    var onSelectEncodingChange = function () {
         processFile();
     };
     var listenBrowseLink = function () {
@@ -243,7 +250,7 @@ var CSVToGeocoder = function (options) {
     var downloadFileName = function () {
         // As we are in CORS ajax, we can't access the Content-Disposition header,
         // so built the file name from here.
-        var name = file.name || 'file';
+        var name = file.name || 'file';
         if (name.indexOf('.csv', name.length - 4) !== -1) name = name.slice(0, name.length - 4);
         return name + '.geocoded.csv';
     };

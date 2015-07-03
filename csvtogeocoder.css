@@ -92,24 +92,20 @@ progress {
 .csvtogeocoder #helpEncoding {
     display: none;
 }
-.csvtogeocoder #helpEncoding select {
+.csvtogeocoder select {
     display: inline;
     width: auto;
 }
-.csvtogeocoder .step2,
-.csvtogeocoder .step3,
-.csvtogeocoder .step4 {
+.csvtogeocoder .step {
     display: none;
 }
-.csvtogeocoder .step {
+.csvtogeocoder .step-title {
     color: #ccc;
 }
-.csvtogeocoder.active .step {
+.csvtogeocoder.active .step-title {
     color: inherit;
 }
-.csvtogeocoder.active .step2,
-.csvtogeocoder.active .step3,
-.csvtogeocoder.active .step4 {
+.csvtogeocoder.active .step {
     display: block;
 }
 .csvtogeocoder .error {
